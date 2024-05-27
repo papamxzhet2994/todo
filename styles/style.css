@@ -1,0 +1,101 @@
+body {
+    font-family: Inter, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0D0714;
+    color: #e6e6e6;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: #1D1825;
+    padding: 50px;
+    border-radius: 10px;
+    width: 400px;
+}
+
+h1, h2 {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.input-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+    align-items: center;
+}
+
+input {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #9E78CF;
+    border-radius: 10px;
+    background-color: #1D1825;
+    color: #e6e6e6;
+    font-size: 16px;
+    outline: none;
+
+}
+
+button {
+    padding: 8px 10px;
+    background-color: #9E78CF;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #6C4C9C;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li {
+    background: #15101C;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #9E78CF;
+}
+
+.button-container {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+    width: 100px;
+}
+
+.task-list li.done {
+    text-decoration: line-through;
+    color: #78CFB0;
+    padding: 25px;
+}
+
+.task-list button {
+    background: none;
+    border: none;
+    color: #6C4C9C;
+    cursor: pointer;
+    font-size: 20px;
+    transition: color 0.3s ease;
+}
+
+.task-list button:hover {
+    color: #9E78CF;
+}
