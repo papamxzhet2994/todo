@@ -1,64 +1,59 @@
 class StorageManager {
-    static getTasks() {
-        return JSON.parse(localStorage.getItem('tasks')) || [];
+    static getItems(key) {
+        return JSON.parse(localStorage.getItem(key)) || [];
     }
 
-    static getDoneTasks() {
-        return JSON.parse(localStorage.getItem('doneTasks')) || [];
-    }
-
-    static updateTasks(tasks) {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-
-    static updateDoneTasks(doneTasks) {
-        localStorage.setItem('doneTasks', JSON.stringify(doneTasks));
+    static updateItems(key, items) {
+        localStorage.setItem(key, JSON.stringify(items));
     }
 }
 
 class Task {
-    constructor(description) {
+    constructor(description, status = 'pending') {
         this.description = description;
+        this.status = status;
     }
 }
 
 class TaskRenderer {
-    constructor(taskList, doneList, tasksCount, doneCount) {
-        this.taskList = taskList;
-        this.doneList = doneList;
-        this.tasksCount = tasksCount;
-        this.doneCount = doneCount;
+    constructor(taskListId, doneListId, tasksCountId, doneCountId) {
+        this.taskList = document.getElementById(taskListId);
+        this.doneList = document.getElementById(doneListId);
+        this.tasksCount = document.getElementById(tasksCountId);
+        this.doneCount = document.getElementById(doneCountId);
     }
 
-    renderTasks(tasks, doneTasks, deleteTaskCallback, markDoneCallback) {
+    renderTasks(tasks, deleteTaskCallback, markDoneCallback) {
         this.taskList.innerHTML = '';
+        this.doneList.innerHTML = '';
+        let pendingCount = 0;
+        let doneCount = 0;
+
         tasks.forEach((task, index) => {
             const li = document.createElement('li');
             li.textContent = task.description;
 
-            const buttonContainer = document.createElement('div');
-            buttonContainer.classList.add('button-container');
+            if (task.status === 'done') {
+                li.classList.add('done');
+                this.doneList.appendChild(li);
+                doneCount++;
+            } else {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('button-container');
 
-            const deleteButton = this.createDeleteButton(index, deleteTaskCallback);
-            const doneButton = this.createDoneButton(index, markDoneCallback);
+                const deleteButton = this.createDeleteButton(index, deleteTaskCallback);
+                const doneButton = this.createDoneButton(index, markDoneCallback);
 
-            buttonContainer.appendChild(doneButton);
-            buttonContainer.appendChild(deleteButton);
-            li.appendChild(buttonContainer);
-            this.taskList.appendChild(li);
+                buttonContainer.appendChild(doneButton);
+                buttonContainer.appendChild(deleteButton);
+                li.appendChild(buttonContainer);
+                this.taskList.appendChild(li);
+                pendingCount++;
+            }
         });
-        this.tasksCount.textContent = tasks.length;
-    }
 
-    renderDoneTasks(doneTasks) {
-        this.doneList.innerHTML = '';
-        doneTasks.forEach((task) => {
-            const li = document.createElement('li');
-            li.textContent = task.description;
-            li.classList.add('done');
-            this.doneList.appendChild(li);
-        });
-        this.doneCount.textContent = doneTasks.length;
+        this.tasksCount.textContent = pendingCount;
+        this.doneCount.textContent = doneCount;
     }
 
     createDeleteButton(index, callback) {
@@ -77,36 +72,28 @@ class TaskRenderer {
 }
 
 class TaskManager {
-    constructor(taskInput, addTaskButton, taskRenderer) {
-        this.taskInput = taskInput;
-        this.addTaskButton = addTaskButton;
+    constructor(taskInputId, addTaskButtonId, taskRenderer) {
+        this.taskInput = document.getElementById(taskInputId);
+        this.addTaskButton = document.getElementById(addTaskButtonId);
         this.taskRenderer = taskRenderer;
 
-        this.tasks = StorageManager.getTasks().map(description => new Task(description));
-        this.doneTasks = StorageManager.getDoneTasks().map(description => new Task(description));
+        this.tasks = StorageManager.getItems('tasks').map(task => new Task(task.description, task.status));
 
         this.addTaskButton.addEventListener('click', () => this.addTask());
 
         this.renderTasks();
-        this.renderDoneTasks();
     }
 
     updateLocalStorage() {
-        StorageManager.updateTasks(this.tasks.map(task => task.description));
-        StorageManager.updateDoneTasks(this.doneTasks.map(task => task.description));
+        StorageManager.updateItems('tasks', this.tasks);
     }
 
     renderTasks() {
         this.taskRenderer.renderTasks(
             this.tasks,
-            this.doneTasks,
             (index) => this.deleteTask(index),
             (index) => this.markDone(index)
         );
-    }
-
-    renderDoneTasks() {
-        this.taskRenderer.renderDoneTasks(this.doneTasks);
     }
 
     deleteTask(index) {
@@ -116,11 +103,9 @@ class TaskManager {
     }
 
     markDone(index) {
-        this.doneTasks.push(this.tasks[index]);
-        this.tasks.splice(index, 1);
+        this.tasks[index].status = 'done';
         this.updateLocalStorage();
         this.renderTasks();
-        this.renderDoneTasks();
     }
 
     addTask() {
@@ -136,13 +121,6 @@ class TaskManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const taskInput = document.getElementById('taskInput');
-    const addTaskButton = document.getElementById('addTaskButton');
-    const taskList = document.getElementById('taskList');
-    const doneList = document.getElementById('doneList');
-    const tasksCount = document.getElementById('tasksCount');
-    const doneCount = document.getElementById('doneCount');
-
-    const taskRenderer = new TaskRenderer(taskList, doneList, tasksCount, doneCount);
-    new TaskManager(taskInput, addTaskButton, taskRenderer);
+    const taskRenderer = new TaskRenderer('taskList', 'doneList', 'tasksCount', 'doneCount');
+    new TaskManager('taskInput', 'addTaskButton', taskRenderer);
 });
